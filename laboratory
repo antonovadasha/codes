@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+
+// Базовий клас UtilitiesPrice
+public abstract class UtilitiesPrice
+{
+    public abstract double CalculatePrice();
+}
+
+// Похідний клас FixedPrice
+public class FixedPrice : UtilitiesPrice
+{
+    private double fixedAmount;
+
+    public FixedPrice(double amount)
+    {
+        fixedAmount = amount;
+    }
+
+    public override double CalculatePrice()
+    {
+        return fixedAmount;
+    }
+}
+
+// Похідний клас ConsumedAmountPrice
+public class ConsumedAmountPrice : UtilitiesPrice
+{
+    private double rate;
+    private double consumedAmount;
+
+    public ConsumedAmountPrice(double rate, double amount)
+    {
+        this.rate = rate;
+        consumedAmount = amount;
+    }
+
+    public override double CalculatePrice()
+    {
+        return rate * consumedAmount;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        List<UtilitiesPrice> utilities = new List<UtilitiesPrice>();
+
+        // Додавання платежів до списку
+        utilities.Add(new FixedPrice(50.0));
+        utilities.Add(new ConsumedAmountPrice(0.1, 200.0));
+
+        // Обчислення загальної суми платежів
+        double totalAmount = 0.0;
+        foreach (UtilitiesPrice utility in utilities)
+        {
+            totalAmount += utility.CalculatePrice();
+        }
+
+        Console.WriteLine("Total amount to pay: $" + totalAmount);
+    }
+}
