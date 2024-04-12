@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Contact
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public string Phone { get; set; }
+}
+
+class PhoneBook
+{
+    private List<Contact> contacts = new List<Contact>();
+
+    public void AddContact(Contact contact)
+    {
+        contacts.Add(contact);
+    }
+
+    public void RemoveContact(Contact contact)
+    {
+        contacts.Remove(contact);
+    }
+
+    public List<Contact> SearchContacts(string searchTerm)
+    {
+        return contacts.Where(contact => 
+            contact.FirstName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            contact.LastName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        PhoneBook phoneBook = new PhoneBook();
+
+        // Додавання контактів
+        phoneBook.AddContact(new Contact { FirstName = "Іван", LastName = "Петров", Email = "ivan@example.com", Phone = "123456789" });
+        phoneBook.AddContact(new Contact { FirstName = "Марія", LastName = "Сидорова", Email = "maria@example.com", Phone = "987654321" });
+
+        // Пошук та виведення результатів
+        string searchTerm = "Петров";
+        List<Contact> searchResults = phoneBook.SearchContacts(searchTerm);
+        Console.WriteLine($"Результати пошуку для '{searchTerm}':");
+        foreach (var contact in searchResults)
+        {
+            Console.WriteLine($"Ім'я: {contact.FirstName}, Прізвище: {contact.LastName}, Email: {contact.Email}, Телефон: {contact.Phone}");
+        }
+
+        // Видалення контакту
+        Contact contactToRemove = searchResults.FirstOrDefault();
+        if (contactToRemove != null)
+        {
+            phoneBook.RemoveContact(contactToRemove);
+            Console.WriteLine($"Контакт {contactToRemove.FirstName} {contactToRemove.LastName} був видалений.");
+        }
+
+        Console.ReadLine();
+    }
+}
