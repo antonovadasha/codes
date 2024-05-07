@@ -1,0 +1,68 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+class TCPServer
+{
+    static void Main(string[] args)
+    {
+        // Встановлення IP-адреси та порту для прослуховування
+        IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+        int port = 12345;
+
+        // Створення TcpListener для прослуховування з'єднань
+        TcpListener listener = new TcpListener(ipAddress, port);
+
+        try
+        {
+            // Початок прослуховування
+            listener.Start();
+            Console.WriteLine("Сервер запущено. Очікування з'єднань...");
+
+            while (true)
+            {
+                // Очікування нового з'єднання
+                TcpClient client = listener.AcceptTcpClient();
+                Console.WriteLine("З'єднання отримано.");
+
+                // Отримання NetworkStream для зчитування даних
+                NetworkStream stream = client.GetStream();
+
+                // Отримання назви файлу
+                byte[] fileNameLengthBytes = new byte[4];
+                stream.Read(fileNameLengthBytes, 0, 4);
+                int fileNameLength = BitConverter.ToInt32(fileNameLengthBytes, 0);
+                byte[] fileNameBytes = new byte[fileNameLength];
+                stream.Read(fileNameBytes, 0, fileNameLength);
+                string fileName = Path.Combine(Environment.CurrentDirectory, Encoding.UTF8.GetString(fileNameBytes));
+
+                // Отримання розміру файлу
+                byte[] fileSizeBytes = new byte[4];
+                stream.Read(fileSizeBytes, 0, 4);
+                int fileSize = BitConverter.ToInt32(fileSizeBytes, 0);
+
+                // Отримання даних файлу
+                byte[] fileData = new byte[fileSize];
+                stream.Read(fileData, 0, fileSize);
+
+                // Збереження файлу
+                File.WriteAllBytes(fileName, fileData);
+                Console.WriteLine($"Файл отримано та збережено: {fileName}");
+
+                // Закриття з'єднання
+                client.Close();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка: {ex.Message}");
+        }
+        finally
+        {
+            // Зупинка TcpListener
+            listener.Stop();
+        }
+    }
+}
